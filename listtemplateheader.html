@@ -1,0 +1,129 @@
+<form></form>
+<div class="topic-selection-container">
+    <div class="mb-3">
+        <label for="topic-dropdown" class="form-label">Select a task to view the board:</label>
+        <select class="form-select" id="topic-dropdown" onchange="filterBoard()">
+            <option value="" disabled selected>-- Select a Task --</option>
+            <option value="1 - Your energy footprint and choices"> <b>1 - Your energy footprint and choices</b></option>
+            <option value="2 - Energy use in your project"><b>2 - Energy use in your project </b></option>
+            </select>
+    </div>
+
+    <div id="task-info-box" class="alert alert-info shadow-sm" style="display: none; border-left: 6px solid #1177d1; background-color: #f8fbff; margin-bottom: 25px;">
+        <h5 style="color: #1177d1;"><i class="fa-solid fa-lightbulb"></i> Task Brief:</h5>
+        <div id="task-info-text" style="white-space: pre-line; color: #333; font-size: 0.95rem; line-height: 1.5;"></div>
+    </div>
+    
+    <h3 id="current-question-title" class="mb-4"></h3>
+    <div id="no-entries-message" class="alert alert-danger mt-3" style="display: none; font-weight: bold;">
+    There are currently no entries for this task.
+</div>
+</div>
+<div class="text-right d-print-none ion-hide">
+    <label for="checkbox1" onClick="save()"><input type="checkbox" id="checkbox1"> <i class="fa-solid fa-rotate" style="vertical-align: super;"></i></input></label>
+</div>
+<script>
+    // Run once per session.
+    if ((typeof sessionStorage !== 'undefined') &&
+        (sessionStorage.getItem('ChangeEntriesReload') === null)) {
+
+        // Set url for 1000 entries per site.
+        const params = new URLSearchParams(location.search);
+        params.set('perpage', 1000);
+        window.history.replaceState({}, '', `${location.pathname}?${params}`);
+        // Reload page.
+        window.location.reload();
+
+        console.log('ok');
+
+        sessionStorage.setItem('ChangeEntriesReload', true);
+    }
+</script>
+
+<script>
+    // Save status of checkbox.
+    function save() {
+        var checkbox = document.getElementById("checkbox1");
+        localStorage.setItem("checkbox1", checkbox.checked);
+        location.reload();
+    }
+    // Get status of checkbox.
+    var checked = JSON.parse(localStorage.getItem("checkbox1"));
+    document.getElementById("checkbox1").checked = checked;
+    // Reload if checkbox is checked.
+    if (checkbox1.checked == true) {
+        // Reload single div every 4 sec.
+        setInterval(function () {
+ location.reload();
+        }, 4000);
+    }
+</script>
+
+<script>
+    // Name of the key to save the selected topic in localStorage
+    const storageKey = 'selectedBoardTopic';
+
+    // The long prompts to be displayed on the board - edit next 4 lines
+    const taskDetails = {
+        "1": "<b>Individual Report Prompt:</b><br>Think about your own <b>energy footprint</b>.<br>If you had to reduce your energy use by <b>50% starting tomorrow</b>:<ul><li>What is the <b>first thing</b> you would change?</li><li>What would be the <b>hardest thing to give up</b> and why?</li></ul>Now think about the <b>technology you rely on</b> (for example phones, streaming, transport or digital tools):<ul><li>How much energy is needed to <b>produce and run</b> these technologies?</li><li>Do these technologies mostly <b>help solve sustainability problems</b> or do they <b>create new ones</b>?</li></ul>", 
+        "2": "<b>Group Project Prompt:</b><br>Think about the <b>energy use in your project</b>.<ul><li>Does your project rely on <b>new or emerging technologies</b> (for example renewable energy systems, EVs or AI)?</li><li>Where does the <b>energy</b> for these technologies come from?</li><li>Are these technologies <b>accessible to everyone</b> or mainly to people who can afford them?</li><li>How could your project reduce energy use <b>without increasing inequality</b>?</li></ul>"
+   
+};
+
+    function filterBoard() {
+        const dropdown = document.getElementById('topic-dropdown');
+        const titleElement = document.getElementById('current-question-title');
+        const noEntriesMessage = document.getElementById('no-entries-message');
+        const infoBox = document.getElementById('task-info-box');
+        const infoText = document.getElementById('task-info-text');
+        const selectedTopic = dropdown.value;
+
+        
+     //   let visibleCount = 0;
+
+       // 1. Show the specific task instructions
+        if (selectedTopic.startsWith("1")) {
+            infoBox.style.display = 'block';
+            infoText.innerHTML = taskDetails["1"].replace(/\n/g, '<br>');
+        } else if (selectedTopic.startsWith("2")) {
+            infoBox.style.display = 'block';
+            infoText.innerHTML = taskDetails["2"].replace(/\n/g, '<br>');
+        } else {
+            infoBox.style.display = 'none';
+        }
+
+        // 2. Filter the cards (Original Logic)
+        let visibleCount = 0;
+        if (selectedTopic) {
+            titleElement.textContent = "Reflective exercise " + selectedTopic;
+            localStorage.setItem(storageKey, selectedTopic);
+        }
+
+        const items = document.querySelectorAll('.board .item');
+        items.forEach(item => {
+            if (item.getAttribute('data-topic') === selectedTopic) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // 3. Show "No entries" if empty
+        noEntriesMessage.style.display = (selectedTopic && visibleCount === 0) ? 'block' : 'none';
+
+        if (typeof window.triggerMasonryLayout === 'function') {
+            window.triggerMasonryLayout();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTopic = localStorage.getItem(storageKey);
+        if (savedTopic) {
+            document.getElementById('topic-dropdown').value = savedTopic;
+            setTimeout(filterBoard, 100);
+        }
+    });
+
+</script>
+<div class="board" id="data-content" data-masonry='{"percentPosition": true }'>

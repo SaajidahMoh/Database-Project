@@ -1,0 +1,398 @@
+<div class="defaulttemplate">
+
+  <div id="prompt-reference" class="alert alert-info mb-4" style="border-left: 5px solid #1177d1; background-color: #f0f7ff; display: none;">
+    <h5 style="color: #1177d1;"><i class="fa-solid fa-circle-info"></i> Task Instructions:</h5>
+    <div id="prompt-text" style="white-space: pre-line; color: #333;"></div>
+</div>
+
+  <table class="table">
+    <tbody>
+     </tr>
+      <tr>
+        <th class="alert-secondary"><i class="fa-solid fa-clipboard-question"></i> Reflective exercise: </th>
+        <td id="settopic">[[Topic]]</td>
+      </tr>
+      <tr class="lastrow">
+        <th class="alert-secondary"><i class="fa-solid fa-brush"></i> </td>
+        <td id="setcolor">[[Color]]</td>
+      </tr>
+      <tr>
+        <th class="alert-secondary"><i class="fa-solid fa-lightbulb"></i> </td>
+        <td>[[Note]]</td>
+      </tr>
+      <tr>
+        <th class="alert-secondary"><i class="fa-solid fa-pencil"></i> </td>
+        <td>
+<details open><summary class="btn btn-secondary">Whiteboard</summary><hr>
+<div style="width:780px;padding: 4px">
+<i class="fa fa-pencil"></i> <select id="selWidth">
+<option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4" selected="selected">4</option> <option value="5">5</option> <option value="6">6</option> <option value="8">8</option> <option value="10">10</option> <option value="12">12</option> <option value="14">14</option> <option value="16">16</option> <option value="18">18</option> <option value="20">20</option> </select>
+<i style="margin-left: 10px" class="fa fa-paint-brush"></i> <input type="color" id="selColor" name="selColor" style="vertical-align: middle">
+<script>
+// Farbe aus ColorPicker auslesen
+var theInput = document.getElementById("selColor");
+var theColor = theInput.value;
+theInput.addEventListener("input", function() {
+// Farbcode (Hex) schreiben
+document.getElementById("selColor").value = theInput.value;
+}, false);
+</script>
+<label style="margin-left: 10px"> <i class="fa fa-eraser"></i> <input class="btn" type="checkbox" id="eraserCheckbox"></label>
+</div>
+<canvas id="canvas" width="800" height="400">Your browser does not support the HTML canvas tag.</canvas><br>
+<button type="button" class="btn btn-secondary" onclick="javascript:clearArea();clearAreaText();return false;"><i class="fa-solid fa-trash"></i></button>
+<script>function clearAreaText() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  textarea.value = "";
+}</script>
+</details>
+</td>
+ </tr>    </tbody>
+  </table>
+
+  <div class="collapse" id="collapseEins">
+    <table class="mod-data-default-template ##approvalstatusclass##">
+      <tbody>
+        <tr class="">
+          <td><i class="fa-solid fa-down-left-and-up-right-to-center"></i>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<br>
+<div class="hidden">
+  <label for=""><span class="accesshide">ID</span></label>
+  <input class="basefieldinput form-control d-inline mod-data-input" type="text" name="" id=""
+    value="">
+</div>
+<script>
+  let idnummer = Date.now() + Math.random();
+  document.getElementById("").value = idnummer;
+</script>
+
+<div class="dataurl" style="display:none">
+[[Whiteboard]]
+</div>
+
+<script>
+// Use the imgtemplate element
+var imgBackground2 = new Image();
+imgBackground2.onload = function() {
+  // Canvas-Größe an die Größe des Bildes anpassen
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  // Calculate the aspect ratio of the image
+  var ratio = Math.min(canvas.width / imgBackground2.width, canvas.height / imgBackground2.height);
+
+  // Calculate the new size of the image
+  var newWidth = imgBackground2.width * ratio;
+  var newHeight = imgBackground2.height * ratio;
+
+  // Set image as backgroundbild für das Canvas
+  canvas.style.backgroundImage = 'url(' + imgBackground2.src + ')';
+  canvas.style.backgroundSize = newWidth + 'px ' + newHeight + 'px';
+  canvas.style.backgroundRepeat = 'no-repeat';
+
+  // Background image zentrieren
+  canvas.style.backgroundPosition = 'center';
+};
+imgBackground2.src = imgTemplate;
+</script>
+<script>
+// Seite nach Data-URLs durchsuchen
+var divElement = document.querySelector('div.dataurl');
+var dataURLs = divElement.innerHTML.match(/data:image\/png;base64,[^'"]+/g);
+
+// Wenn eine Data-URL gefunden wurde, diese in das Canvas-Element laden
+if (dataURLs && dataURLs.length > 0) {
+  var img = new Image();
+  img.onload = function() {
+    context.drawImage(img, 0, 0);
+  };
+  img.src = dataURLs[0];
+} else if (divElement.textContent.includes("data:image")) {
+  // Wenn das dataurl-Element keinen img-Tag enthält, aber einen Textinhalt mit Data-URL enthält
+  var img = new Image();
+  img.onload = function() {
+    context.drawImage(img, 0, 0);
+  };
+  img.src = divElement.textContent.match(/data:image\/png;base64,[^'"]+/g)[0];
+};
+</script> 
+
+<script>
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+let isDrawing = false;
+let x = 0;
+let y = 0;
+var offsetX;
+var offsetY;
+var isEraser = false;
+
+function startup() {
+  canvas.addEventListener('touchstart', handleStart);
+  canvas.addEventListener('touchend', handleEnd);
+  canvas.addEventListener('touchcancel', handleCancel);
+  canvas.addEventListener('touchmove', handleMove);
+  canvas.addEventListener('mousedown', (e) => {
+    x = e.offsetX;
+    y = e.offsetY;
+    isDrawing = true;
+  });
+  canvas.addEventListener('mousemove', (e) => {
+    if (isDrawing) {
+      if (isEraser) {
+        eraseLine(context, x, y, e.offsetX, e.offsetY);
+      } else {
+        drawLine(context, x, y, e.offsetX, e.offsetY);
+      }
+      x = e.offsetX;
+      y = e.offsetY;
+    }
+  });
+  canvas.addEventListener('mouseup', (e) => {
+    if (isDrawing) {
+      if (isEraser) {
+        eraseLine(context, x, y, e.offsetX, e.offsetY);
+      } else {
+        drawLine(context, x, y, e.offsetX, e.offsetY);
+      }
+      x = 0;
+      y = 0;
+      isDrawing = false;
+    }
+  });
+  document.getElementById('eraserCheckbox').addEventListener('change', (e) => {
+    isEraser = e.target.checked;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", startup);
+
+const ongoingTouches = [];
+
+function handleStart(evt) {
+  evt.preventDefault();
+  const touches = evt.changedTouches;
+  offsetX = canvas.getBoundingClientRect().left;
+  offsetY = canvas.getBoundingClientRect().top;
+  for (let i = 0; i < touches.length; i++) {
+    ongoingTouches.push(copyTouch(touches[i]));
+  }
+}
+
+function handleMove(evt) {
+    evt.preventDefault();
+    const touches = evt.changedTouches;
+    for (let i = 0; i < touches.length; i++) {
+      const color = document.getElementById('selColor').value;
+      const idx = ongoingTouchIndexById(touches[i].identifier);
+      if (idx >= 0) {
+        context.beginPath();
+        context.moveTo(ongoingTouches[idx].clientX - offsetX, ongoingTouches[idx].clientY - offsetY);
+        context.lineTo(touches[i].clientX - offsetX, touches[i].clientY - offsetY);
+        context.lineWidth = document.getElementById('selWidth').value;
+        context.strokeStyle = color;
+        context.lineJoin = "round";
+        context.closePath();
+        if (isEraser) {
+          context.globalCompositeOperation = "destination-out";
+context.lineWidth = document.getElementById('selWidth').value +4;
+        } else {
+          context.globalCompositeOperation = "source-over";
+        }
+        context.stroke();
+        ongoingTouches.splice(idx, 1, copyTouch(touches[i])); // swap in the new touch record
+      }
+    }
+  }
+
+ function handleEnd(evt) {
+    evt.preventDefault();
+    const touches = evt.changedTouches;
+    for (let i = 0; i < touches.length; i++) {
+      const color = document.getElementById('selColor').value;
+      let idx = ongoingTouchIndexById(touches[i].identifier);
+      if (idx >= 0) {
+        context.lineWidth = document.getElementById('selWidth').value;
+        context.fillStyle = color;
+        ongoingTouches.splice(idx, 1); // remove it; we're done
+      }
+    }
+  }
+
+function handleCancel(evt) {
+  evt.preventDefault();
+  const touches = evt.changedTouches;
+  for (let i = 0; i < touches.length; i++) {
+    let idx = ongoingTouchIndexById(touches[i].identifier);
+    ongoingTouches.splice(idx, 1); // remove it; we're done
+  }
+}
+
+function copyTouch({ identifier, clientX, clientY }) {
+  return { identifier, clientX, clientY };
+}
+
+function ongoingTouchIndexById(idToFind) {
+  for (let i = 0; i < ongoingTouches.length; i++) {
+    const id = ongoingTouches[i].identifier;
+    if (id === idToFind) {
+      return i;
+    }
+  }
+  return -1; // not found
+}
+
+function drawLine(context, x1, y1, x2, y2) {
+  context.beginPath();
+  context.strokeStyle = document.getElementById('selColor').value;
+  context.lineWidth = document.getElementById('selWidth').value;
+  context.lineJoin = "round";
+  context.moveTo(x1, y1);
+  context.lineTo(x2, y2);
+  context.closePath();
+  context.stroke();
+}
+
+function eraseLine(context, x1, y1, x2, y2) {
+  context.globalCompositeOperation = "destination-out";
+  context.beginPath();
+  context.lineWidth = document.getElementById('selWidth').value + 4;
+  context.lineJoin = "round";
+  context.moveTo(x1, y1);
+  context.lineTo(x2, y2);
+  context.closePath();
+  context.stroke();
+  context.globalCompositeOperation = "source-over";
+}
+
+function clearArea() {
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+}
+</script>
+
+<script>
+// Debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeout);
+    document.getElementById("message").style.visibility = "visible"; // Show message
+    timeout = setTimeout(() => {
+      func.apply(context, args);
+      document.getElementById("message").style.visibility = "hidden"; // Hide message
+    }, wait);
+  };
+}
+
+
+// Event-Listener auf das Canvas setzen
+canvas.addEventListener("mousedown", debounce(function() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  // Canvas-Inhalt als Data-URL abrufen
+  var dataURL = canvas.toDataURL();
+  // Data-URL in Textarea einfügen
+  textarea.value = dataURL;
+}, 500)); // Wartezeit in Millisekunden
+
+canvas.addEventListener("mousemove", debounce(function() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  // Canvas-Inhalt als Data-URL abrufen
+  var dataURL = canvas.toDataURL();
+  // Data-URL in Textarea einfügen
+  textarea.value = dataURL;
+}, 500)); // Wartezeit in Millisekunden
+
+canvas.addEventListener("mouseup", debounce(function() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  // Canvas-Inhalt als Data-URL abrufen
+  var dataURL = canvas.toDataURL();
+  // Data-URL in Textarea einfügen
+  textarea.value = dataURL;
+}, 500)); // Wartezeit in Millisekunden
+
+// Event-Listener auf das Canvas setzen
+canvas.addEventListener("touchstart", debounce(function() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  // Canvas-Inhalt als Data-URL abrufen
+  var dataURL = canvas.toDataURL();
+  // Data-URL in Textarea einfügen
+  textarea.value = dataURL;
+}, 500)); // Wartezeit in Millisekunden
+
+canvas.addEventListener("touchmove", debounce(function() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  // Canvas-Inhalt als Data-URL abrufen
+  var dataURL = canvas.toDataURL();
+  // Data-URL in Textarea einfügen
+  textarea.value = dataURL;
+}, 500)); // Wartezeit in Millisekunden
+
+canvas.addEventListener("touchend", debounce(function() {
+  var textarea = document.getElementById("[[Whiteboard#id]]");
+  // Canvas-Inhalt als Data-URL abrufen
+  var dataURL = canvas.toDataURL();
+  // Data-URL in Textarea einfügen
+  textarea.value = dataURL;
+}, 500)); // Wartezeit in Millisekunden
+
+</script>
+<div id="message" class="alert alert-danger" style="visibility: hidden;margin: auto 0;">Drawing will be updated, please wait...</div>
+
+<script>
+window.onload = function() {
+  var details = document.querySelector("details");
+  details.open = false;
+};
+</script>
+
+<script>
+	const radios = document.getElementsByName('[[Color#id]]');
+// Überprüfen, welches Radio-Button ausgewählt ist
+		for (let i = 0; i < radios.length; i++) {
+			if (radios[i].checked) {
+				canvas.style.backgroundColor = radios[i].value;
+			}
+		}
+
+		// Hinzufügen eines "change"-Ereignisses zu jedem Radio-Button
+		for (let i = 0; i < radios.length; i++) {
+			radios[i].addEventListener('change', function() {
+				canvas.style.backgroundColor = this.value;
+			});
+		}
+	</script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+   const prompts = {
+    "1": "<b>Individual Report Prompt:</b><br>Think about your own <b>energy footprint</b>.<br>If you had to reduce your energy use by <b>50% starting tomorrow</b>:<ul><li>What is the <b>first thing</b> you would change?</li><li>What would be the <b>hardest thing to give up</b> and why?</li></ul>Now think about the <b>technology you rely on</b> (for example phones, streaming, transport or digital tools):<ul><li>How much energy is needed to <b>produce and run</b> these technologies?</li><li>Do these technologies mostly <b>help solve sustainability problems</b> or do they <b>create new ones</b>?</li></ul>",
+     "2": "<b>Group Project Prompt:</b><br>Think about the <b>energy use in your project</b>.<ul><li>Does your project rely on <b>new or emerging technologies</b> (for example renewable energy systems, EVs or AI)?</li><li>Where does the <b>energy</b> for these technologies come from?</li><li>Are these technologies <b>accessible to everyone</b> or mainly to people who can afford them?</li><li>How could your project reduce energy use <b>without increasing inequality</b>?</li></ul>"
+   
+};
+    const promptBox = document.getElementById('prompt-reference');
+    const promptText = document.getElementById('prompt-text');
+    const taskInputs = document.querySelectorAll('input[name^="field_"]');
+    function updatePrompt() {
+        let selectedValue = "";
+        taskInputs.forEach(input => { if (input.checked) selectedValue = input.value; });
+        if (selectedValue.startsWith("1")) {
+            promptBox.style.display = 'block';
+            promptText.innerHTML = prompts["1"].replace(/\n/g, '<br>');
+        } else if (selectedValue.startsWith("2")) {
+            promptBox.style.display = 'block';
+            promptText.innerHTML = prompts["2"].replace(/\n/g, '<br>');
+        } else { promptBox.style.display = 'none'; }
+    }
+    taskInputs.forEach(input => { input.addEventListener('change', updatePrompt); });
+    updatePrompt();
+});
+</script>

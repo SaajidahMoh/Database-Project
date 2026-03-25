@@ -1,0 +1,131 @@
+/*
+ * Datenbankvorlage Kartenabfrage
+ * @Autor 2021 Florian Dagner
+* Drog.js v1.2.1
+ * [Back-compatibility: IE11+]
+ * Copyright (c) 2021, Emanuel Rojas Vásquez
+ * BSD 3-Clause License
+ * https://github.com/erovas/Drog.js
+ */
+
+ .board {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.table {
+max-width: 1200px;
+}
+
+[data-drog] {
+  cursor: move;
+  min-height: 50px;
+}
+
+.item {
+}
+
+#setcolor fieldset {
+display: flex;
+flex-direction: row;
+gap: 4px;
+}
+
+.userpicture, .userinitials.size-64 {
+width: 50px;
+height: 50px;
+}
+
+.karte img {
+  max-width: 270px;
+}
+
+audio,
+video {
+  max-width: 99%;
+}
+
+.karte2 img {
+  max-width: 800px;
+}
+
+.karte {
+  box-shadow: silver 4px 4px 4px;
+  width: 276px;
+  margin-right: 25px;
+  margin-bottom: 25px;
+  padding: 4px;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  column-break-inside: avoid;
+  background-color: #fff;
+  border-radius: 10px 10px 10px 10px;
+}
+
+.karte2 {
+  box-shadow: silver 4px 4px 4px;
+  width: 810px;
+  margin-right: 25px;
+  margin-bottom: 25px;
+  padding: 4px;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  column-break-inside: avoid;
+  border-radius: 10px 10px 10px 10px;
+}
+
+
+.comment-list,
+.comment-ctrl {
+  font-size: 0.8rem;
+}
+
+.hidden {
+  display: none;
+}
+
+canvas {
+  border: 1px solid black;
+}
+
+.dataurlview {
+  max-width: 100%;
+  background-size: 100% auto;
+}
+
+
+/* Style für Druck  */
+@media print {
+  /* Not displayed in print version. */
+  #page-header,
+  #page-footer,
+  .intro,
+  .nav-tabs,
+  .datapreferences,
+  .btn-secondary,
+  i.icon,
+  .comment-area,
+  .pagination,
+  input,
+  .activity-navigation,
+  .activity-information,
+  .fixed-top,
+  .container,
+  .mbsmenubar,
+  .top-bar,
+  #me-wrapper,
+  .body img,
+  #mbsmenubar,
+  #mebis-footer,
+  #menu-sidebar-menu,
+  .row {
+    display: none;
+    background: none;
+  }
+}
+
+/*Hide dropdown List/Single View */
+div[role=main] .tertiary-navigation {
+display: none !important;
+}
+

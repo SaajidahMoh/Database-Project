@@ -1,0 +1,84 @@
+</div>
+<script>// Function to scroll to anchor
+function scrollToAnchor() {
+    // Scroll to the data-content anchor position after reloading
+    document.getElementById('data-content').scrollIntoView();
+}
+
+// Add event listener to call the scrollToAnchor function after the page loads
+document.addEventListener('DOMContentLoaded', scrollToAnchor);
+</script>
+<script>
+window.onload = function() {
+// Select all div elements with the class "dataurlview" aus 
+let dataurlviews = document.querySelectorAll(".dataurlview");
+
+// Use the imgtemplate element
+let imgBackground = new Image();
+imgBackground.onload = function() {
+  // Adjust the size of each dataurlview element
+  dataurlviews.forEach(function(dataurlview) {
+    dataurlview.style.width = dataurlview.offsetWidth + "px";
+    dataurlview.style.height = dataurlview.offsetHeight + "px";
+
+    // Calculate the aspect ratio of the image
+    let ratio = Math.min(dataurlview.offsetWidth / imgBackground.width, dataurlview.offsetHeight / imgBackground.height);
+
+    // Calculate the new size of the image
+    let newWidth = imgBackground.width * ratio;
+    let newHeight = imgBackground.height * ratio;
+
+    // Set image as backgroundbild setzen
+    dataurlview.style.backgroundImage = 'url(' + imgBackground.src + ')';
+    dataurlview.style.backgroundSize = newWidth + 'px ' + newHeight + 'px';
+    dataurlview.style.backgroundRepeat = 'no-repeat';
+    dataurlview.style.backgroundPosition = 'center';
+  });
+};
+imgBackground.src = imgTemplate;
+};
+</script>
+<script>
+let whiteboardcontents = document.getElementsByClassName("whiteboardcontent");
+for (let i = 0; i < whiteboardcontents.length; i++) {
+    let whiteboardcontent = whiteboardcontents[i];
+    if (whiteboardcontent.src === "") {
+        whiteboardcontent.style.display = "none";
+    } else {
+        whiteboardcontent.style.display = "block";
+    }
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Abrufen des Masonry-Containers
+    var grid = document.querySelector('.board');
+    
+    // Initialisierung von Masonry
+    var msnry = new Masonry(grid);
+    
+    // **NEW GLOBAL FUNCTION**
+    window.triggerMasonryLayout = function() {
+        msnry.layout();
+    };
+
+    imagesLoaded( grid ).on( 'progress', function() {
+        // layout Masonry after each image loads
+        msnry.layout();
+    });
+    
+    // Hinzufügen eines Event-Listeners für Klicks auf Elemente mit der Klasse "comment-link"
+    document.querySelectorAll('.comment-link').forEach(function(link) {
+        link.addEventListener('click', function() {
+            // Überprüfen, ob das Masonry-Layout bereits initialisiert wurde
+            if (msnry) {
+                // Warten Sie 1 Sekunde, bevor das Layout neu angeordnet wird
+                setTimeout(function() {
+                    // Layout neu anordnen, nachdem die Höhe des Kommentarfelds geändert wurde
+                    msnry.layout();
+                }, 250); // 250 Millisekunden = 0,25 Sekunden
+            }
+        });
+    });
+});
+</script>

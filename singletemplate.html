@@ -1,0 +1,42 @@
+<style>/* Single view wrapper for consistent alignment of back button and entry in single view */
+.single-view-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+</style>
+<div class="single-view-wrapper">
+  </div>
+
+<script>
+(function(){
+  // Function to determine the list view URL
+  function getListViewUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const d = url.searchParams.get('d'); // Database activity ID
+      
+      if (d) {
+        const list = new URL(window.location.href);
+        list.searchParams.set('d', d);
+        // Remove parameters that define a single entry or page number
+        ['rid','mode','page','sesskey'].forEach(p => list.searchParams.delete(p));
+        list.searchParams.set('mode', 'browse'); // Force Moodle to the list/browse view
+        return list.pathname + list.search;
+      }
+    } catch (e) {
+      console.error("URL parsing failed:", e);
+    }
+    return null;
+  }
+
+  const listViewUrl = getListViewUrl();
+  if (listViewUrl) {
+    // Redirect to the List View immediately.
+    // window.location.replace() is used to avoid creating an extra entry in the browser history.
+    window.location.replace(listViewUrl);
+  } else {
+    // Fallback: simply go back in history if URL is malformed, though the redirect should work.
+    history.back();
+  }
+})();
+</script>
